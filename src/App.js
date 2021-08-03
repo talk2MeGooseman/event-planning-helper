@@ -12,10 +12,11 @@ import "./styles.css";
 
 const milestones = [
   { duration: { months: 6 }, unit: "month" },
-  { duration: { months: 3 }, unit: "month" },
   { duration: { days: 100 }, unit: "day" },
+  { duration: { months: 3 }, unit: "month" },
   { duration: { days: 60 }, unit: "day" },
   { duration: { days: 45 }, unit: "day" },
+  { duration: { days: 30 }, unit: "day" },
   { duration: { days: 14 }, unit: "day" }
 ];
 const postMilestones = [
@@ -25,7 +26,7 @@ const postMilestones = [
 ];
 
 const createEvent = ({ name, eventDate, milestoneDate, unit, isPost }) => {
-  const timeDistance = formatDistanceStrict(eventDate, milestoneDate, unit);
+  const timeDistance = formatDistanceStrict(eventDate, milestoneDate, { unit, roundingMethod: "floor" });
 
   return {
     title: `${name} ${timeDistance} ${isPost ? "post" : ""}`,
@@ -40,7 +41,7 @@ const Event = ({ name, eventDate, milestoneDate, unit, isPost }) => {
   return (
     <>
       <h2>
-        {name} {formatDistanceStrict(eventDate, milestoneDate, { unit })}{" "}
+        {name} {formatDistanceStrict(eventDate, milestoneDate, { unit, roundingMethod: "floor" })}{" "}
         {isPost && "post"} {lightFormat(milestoneDate, "MM-dd-yyyy")}
       </h2>
       <ICalendarLink
@@ -78,16 +79,20 @@ export default function App() {
 
   return (
     <div className="App">
-      <h1>Hey Sexy</h1>
+      <h1>Today is {lightFormat(Date.now(), "MM-dd-yyyy")}</h1>
       <h2>Select a date to get your milestones</h2>
-      <label>
-        Client Name:
-        <input type="text" onChange={onNameChange} />
-      </label>
-      <label>
-        Event Date:
-        <input type="date" onChange={onDayChange} />
-      </label>
+      <div>
+        <label>
+          Client Name:
+          <input type="text" onChange={onNameChange} />
+        </label>
+      </div>
+      <div>
+        <label>
+          Event Date:
+          <input type="date" onChange={onDayChange} />
+        </label>
+      </div>
       {date &&
         milestones.map(({ duration, unit }) => (
           <Event
