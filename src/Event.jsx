@@ -3,6 +3,8 @@ import {
   lightFormat
 } from "date-fns";
 import ICalendarLink from "react-icalendar-link";
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 
 export const createEvent = ({ name, eventDate, milestoneDate, unit, isPost }) => {
   const timeDistance = formatDistanceStrict(eventDate, milestoneDate, { unit, roundingMethod: "floor" });
@@ -31,20 +33,24 @@ export const createEvent = ({ name, eventDate, milestoneDate, unit, isPost }) =>
 export const Event = ({ name, eventDate, milestoneDate, unit, isPost }) => {
   return (
     <>
-      <h4>
+      <h4 className="scroll-m-20 text-m font-semibold tracking-tight mb-2">
         {name} {formatDistanceStrict(eventDate, milestoneDate, { unit, roundingMethod: "floor" })} {isPost ? 'post' : 'away'}: {lightFormat(milestoneDate, "MM/dd/yyyy")}
       </h4>
-      <ICalendarLink
-        event={createEvent({
-          name,
-          eventDate: eventDate,
-          milestoneDate: milestoneDate,
-          unit,
-          isPost
-        })}
-      >
-        Add to Calendar
-      </ICalendarLink>
+      <Button asChild>
+        <ICalendarLink
+          className="text-sm font-medium transition-colors hover:text-primary"
+          event={createEvent({
+            name,
+            eventDate: eventDate,
+            milestoneDate: milestoneDate,
+            unit,
+            isPost
+          })}
+        >
+          Add to Calendar
+        </ICalendarLink>
+      </Button>
+      <Separator className="my-4" />
     </>
   );
 };
