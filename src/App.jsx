@@ -7,10 +7,10 @@ import {
 } from "date-fns";
 import { pipe } from "ramda";
 import { useCallback, useState } from "react";
-import ICalendarLink from "react-icalendar-link";
 import "./styles.css";
+import { Event } from "./Event";
 
-const milestones = [
+const MILESTONE_DATES = [
   { duration: { months: 6 }, unit: "month" },
   { duration: { days: 100 }, unit: "day" },
   { duration: { months: 3 }, unit: "month" },
@@ -19,49 +19,17 @@ const milestones = [
   { duration: { days: 30 }, unit: "day" },
   { duration: { days: 14 }, unit: "day" }
 ];
-const postMilestones = [
+
+const FOLLOW_UP_MILESTONE_DATES = [
   { duration: { days: 14 }, unit: "day" },
   { duration: { months: 2 }, unit: "month" },
   { duration: { years: 1 }, unit: "year" }
 ];
 
-const createEvent = ({ name, eventDate, milestoneDate, unit, isPost }) => {
-  const timeDistance = formatDistanceStrict(eventDate, milestoneDate, { unit, roundingMethod: "floor" });
-
-  return {
-    title: `${name} ${timeDistance} ${isPost ? "post" : ""}`,
-    description: "",
-    startTime: milestoneDate,
-    endTime: milestoneDate,
-    location: ""
-  };
-};
-
-const Event = ({ name, eventDate, milestoneDate, unit, isPost }) => {
-  return (
-    <>
-      <h2>
-        {name} {formatDistanceStrict(eventDate, milestoneDate, { unit, roundingMethod: "floor" })}{" "}
-        {isPost && "post"} {lightFormat(milestoneDate, "MM-dd-yyyy")}
-      </h2>
-      <ICalendarLink
-        event={createEvent({
-          name,
-          eventDate: eventDate,
-          milestoneDate: milestoneDate,
-          unit,
-          isPost
-        })}
-      >
-        Add to Calendar
-      </ICalendarLink>
-    </>
-  );
-};
-
 export default function App() {
   const [date, setDate] = useState("");
   const [name, setName] = useState("");
+  const [daysFromToday, setDaysFromToday] = useState("");
 
   const onDayChange = useCallback(
     (event) => {
@@ -77,43 +45,82 @@ export default function App() {
     [setName]
   );
 
+  const onDaysFromTodayChange = useCallback(
+    (event) => {
+      setDaysFromToday(event.target.value);
+    },
+    [setDaysFromToday]
+  );
+
   return (
     <div className="App">
       <h1>Today is {lightFormat(Date.now(), "MM-dd-yyyy")}</h1>
-      <h2>Select a date to get your milestones</h2>
-      <div>
-        <label>
-          Client Name:
-          <input type="text" onChange={onNameChange} />
-        </label>
-      </div>
-      <div>
-        <label>
-          Event Date:
-          <input type="date" onChange={onDayChange} />
-        </label>
-      </div>
-      {date &&
-        milestones.map(({ duration, unit }) => (
+      <section>
+        <h2>Wedding Milestone Calendar Reminder Maker</h2>
+        <div>
+          <label>
+            Client Name:
+            <input type="text" onChange={onNameChange} defaultValue={name} />
+          </label>
+        </div>
+        <div>
+          <label>
+            Event Date:
+            <input type="date" onChange={onDayChange} />
+          </label>
+        </div>
+        {date &&
+          <>
+            <h3>Pre Wedding Milestones</h3>
+            {MILESTONE_DATES.map(({ duration, unit }) => (
+              <Event
+                id={name}
+                name={name}
+                eventDate={date}
+                milestoneDate={sub(date, duration)}
+                unit={unit}
+              />
+            ))}
+          </>}
+        {date &&
+          <>
+            <h3>Post Wedding Milestones</h3>
+            {FOLLOW_UP_MILESTONE_DATES.map(({ duration, unit }) => (
+              <Event
+                id={name}
+                name={name}
+                eventDate={date}
+                milestoneDate={add(date, duration)}
+                unit={unit}
+                isPost
+              />
+            ))}
+          </>}
+      </section>
+      <section>
+        <h2>Calendar Day(s) From Today Event Maker</h2>
+        <div>
+          <label>
+            Client Name:
+            <input type="text" onChange={onNameChange} defaultValue={name} />
+          </label>
+        </div>
+        <div>
+          <label>
+            How many days from today?:
+            <input type="number" onChange={onDaysFromTodayChange} />
+          </label>
+        </div>
+        {
+          daysFromToday &&
           <Event
-            id={name}
             name={name}
-            eventDate={date}
-            milestoneDate={sub(date, duration)}
-            unit={unit}
+            eventDate={Date.now()}
+            milestoneDate={add(Date.now(), { days: daysFromToday })}
+            unit="day"
           />
-        ))}
-      {date &&
-        postMilestones.map(({ duration, unit }) => (
-          <Event
-            id={name}
-            name={name}
-            eventDate={date}
-            milestoneDate={add(date, duration)}
-            unit={unit}
-            isPost
-          />
-        ))}
+        }
+      </section>
     </div>
   );
 }
