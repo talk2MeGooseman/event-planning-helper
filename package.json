@@ -3,6 +3,9 @@
   "type": "module",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": ">=18.0.0"
+   },
   "keywords": [
     "react",
     "starter"
